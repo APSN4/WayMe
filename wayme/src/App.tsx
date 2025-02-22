@@ -6,12 +6,12 @@ function App() {
 
   return (
     <>
-        <MapContainer className="map-container" center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
+        <MapContainer className="map-container" center={[55.746667, 37.606545]} zoom={15} scrollWheelZoom={false}>
             <TileLayer
                 attribution='WayMe'
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Marker position={[51.505, -0.09]}>
+            <Marker position={[55.746667, 37.606545]}>
                 <Popup>
                     A pretty CSS3 popup. <br /> Easily customizable.
                 </Popup>
