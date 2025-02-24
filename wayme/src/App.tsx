@@ -8,8 +8,8 @@ import {useEffect, useRef, useState} from "react";
 
 function App() {
 
-    const [startPosition, setStartPosition] = useState([57.74, 11.94]);
-    const [endPosition, setEndPosition] = useState([57.6792, 11.949]);
+    const [startPosition, setStartPosition] = useState([55.743580, 37.630657]);
+    const [endPosition, setEndPosition] = useState([55.733280, 37.609791]);
 
     const RoutingComponent = ({ startPosition, endPosition }) => {
         const map = useMap();
@@ -30,6 +30,8 @@ function App() {
                     L.latLng(endPosition)
                 ],
             }).addTo(map);
+
+            routingControlRef.current.on('routesfound', (event) => {console.log(event)})
         }
 
         return null;
