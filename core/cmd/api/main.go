@@ -1,7 +1,17 @@
 package main
 
-import "core/internal"
+import (
+	"core/internal/api"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	internal.GetGlobalPlacesFile()
+	r := gin.Default()
+
+	v1 := r.Group("v1")
+	{
+		v1.GET("/markers", api.GetMarkers)
+	}
+
+	r.Run()
 }
