@@ -3,7 +3,9 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/downflux/go-geometry/nd/vector"
 	"os"
+	"strconv"
 )
 
 type Place struct {
@@ -34,5 +36,20 @@ func GetGlobalPlacesFile() {
 	err = json.Unmarshal(data, &dataPlaces)
 	if err != nil {
 		fmt.Println("Error Unmarshal in GetGlobalPlacesFile")
+	}
+
+	for _, k := range dataPlaces {
+		if k.Latitude == "" || k.Longitude == " " {
+			continue
+		}
+		x, err := strconv.ParseFloat(k.Longitude, 64)
+		if err != nil {
+			panic(err)
+		}
+		y, err := strconv.ParseFloat(k.Latitude, 64)
+		if err != nil {
+			panic(err)
+		}
+		dataPlacesKD = append(dataPlacesKD, &P{p: vector.V{x, y}, info: k})
 	}
 }

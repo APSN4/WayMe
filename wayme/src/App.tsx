@@ -12,6 +12,7 @@ function App() {
     const [endPosition, setEndPosition] = useState([55.733280, 37.609791]);
     const [position, setPosition] = useState([55.746667, 37.606545])
     const isFirstRender = useRef(true);
+    const [markers, setMarkers] = useState([]);
 
     const RoutingComponent = ({ startPositionLocal, endPositionLocal }: any) => {
         const map = useMap();
@@ -40,16 +41,85 @@ function App() {
 
                 routingControlRef.current.on('routesfound', (event) => {
                     console.log(event)
-                    RequestGetMarkers(startPosition[0], startPosition[1], 5).then(r => {
-                        console.log(r)
-                        for (let i = 0; i < r.length; i++) {
-                            L.marker([r[i].coordinates_float[1], r[i].coordinates_float[0]]).addTo(map);
-                        }
-                    })
+                    const waypoints = routingControlRef.current?.getPlan().getWaypoints();
+                    const firstPoint = waypoints?.[0]?.latLng;
+                    // Собираем все промисы в массив
+                    const markerPromises = event.routes[0].coordinates.map(coord =>
+                        RequestGetMarkers(coord.lng, coord.lat, 1)
+                    );
+
+                    // Ждем завершения всех запросов
+                    Promise.all(markerPromises)
+                        .then(results => {
+                            const markerMap = {};
+
+                            // Обрабатываем все результаты
+                            results.flat().forEach((item, index) => {
+                                const lat = item.coordinates_float[1]; // Широта
+                                const lng = item.coordinates_float[0]; // Долгота
+                                // Создаем уникальный ключ из округленных координат
+                                const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+
+                                // Добавляем маркер только если его еще нет
+                                if (!markerMap[key]) {
+                                    markerMap[key] = {
+                                        id: Date.now() + index,
+                                        position: [lat, lng],
+                                        info: item.info
+                                    };
+                                }
+                            });
+
+                            // Преобразуем объект в массив для обновления состояния
+                            const allNewMarkers = Object.values(markerMap);
+                            setMarkers(allNewMarkers);
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при загрузке маркеров:', error);
+                        });
                 })
                 isFirstRender.current = false;
             }
         }
+
+        return null;
+    };
+
+    const MarkersLayer = () => {
+        const map = useMap();
+
+        useEffect(() => {
+            var restaurantIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2151/2151973.png',
+                iconSize: [30, 30]
+            })
+            const markerLayer = markers.map(marker => {
+                const leafletMarker = L.marker(marker.position)
+                    .addTo(map)
+                    .bindPopup(() => {
+                        // Создаем содержимое попапа из info
+                        const popupContent = document.createElement('div');
+                        if (typeof marker.info === 'object') {
+                            // Если info - объект, выводим все его свойства
+                            popupContent.innerHTML = Object.entries(marker.info)
+                                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                                .join('<br>');
+                        } else {
+                            // Если info - строка или другой тип
+                            popupContent.innerHTML = marker.info || 'Нет информации';
+                        }
+                        return popupContent;
+                    })
+                    .setIcon(restaurantIcon);
+
+                return leafletMarker;
+            });
+
+            // Очистка при размонтировании или обновлении
+            return () => {
+                markerLayer.forEach(marker => map.removeLayer(marker));
+            };
+        }, [markers, map]);
 
         return null;
     };
@@ -108,6 +178,7 @@ function App() {
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <RoutingComponent startPositionLocal={startPosition} endPositionLocal={endPosition} />
+                <MarkersLayer />
                 <MapEventsHandler />
             </MapContainer>
         </>

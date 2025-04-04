@@ -54,7 +54,7 @@ func comparePhones(a, b []Phone) bool {
 	return true
 }
 
-func GetPointsRegion(x float64, y float64, radius int) []PlaceAPI {
+func GetPointsRegion(x float64, y float64, radius int64) []PlaceAPI {
 
 	var places []PlaceAPI
 
@@ -68,7 +68,7 @@ func GetPointsRegion(x float64, y float64, radius int) []PlaceAPI {
 	for _, p := range kd.KNN(
 		t,
 		/* v = */ vector.V{x, y},
-		/* k = */ radius,
+		/* k = */ int(radius),
 		func(p *P) bool { return true }) {
 		fmt.Println(p)
 		places = append(places, PlaceAPI{CoordinatesFloat: p.p, Info: p.info})
