@@ -9,7 +9,7 @@ import (
 type Place struct {
 	ID               string  `json:"ID"`
 	Name             string  `json:"Name"`
-	globalID         int     `json:"global_id"`
+	GlobalID         int     `json:"global_id"`
 	IsNetObject      string  `json:"IsNetObject"`
 	OperatingCompany string  `json:"OperatingCompany"`
 	TypeObject       string  `json:"TypeObject"`
