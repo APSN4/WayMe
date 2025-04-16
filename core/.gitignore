@@ -50,4 +50,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-storage/*
+internal/storage/*
+!internal/storage/.gitkeep

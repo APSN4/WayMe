@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/downflux/go-geometry/nd/vector"
+	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -32,7 +34,15 @@ type Phone struct {
 var dataPlaces []Place
 
 func GetGlobalPlacesFile() {
-	data, err := os.ReadFile("storage/data_places.json")
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	dataDir := filepath.Join(currentDir, "internal", "storage", "data_places.json")
+	data, err := os.ReadFile(dataDir)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	err = json.Unmarshal(data, &dataPlaces)
 	if err != nil {
 		fmt.Println("Error Unmarshal in GetGlobalPlacesFile")
