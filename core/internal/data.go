@@ -38,7 +38,7 @@ func GetGlobalPlacesFile() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	dataDir := filepath.Join(currentDir, "internal", "storage", "data_places.json")
+	dataDir := filepath.Join(currentDir, "storage", "data_places.json")
 	data, err := os.ReadFile(dataDir)
 	if err != nil {
 		log.Fatalln(err)

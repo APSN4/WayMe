@@ -51,4 +51,4 @@ Temporary Items
 .apdisk
 
 internal/storage/*
-!internal/storage/.gitkeep
+!storage/.gitkeep
