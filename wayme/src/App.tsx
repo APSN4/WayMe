@@ -5,6 +5,17 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet-routing-machine';
 import L from 'leaflet';
 import {useEffect, useRef, useState} from "react";
+import {
+    Box,
+    VStack,
+    Input,
+    Text,
+    Checkbox,
+    Heading,
+    Image,
+    Flex,
+    Switch, HStack, Button,
+} from '@chakra-ui/react';
 
 function App() {
 
@@ -165,22 +176,128 @@ function App() {
 
     return (
         <>
-            <MapCoordinatesTitle position={position} />
-            <MapContainer
-                className="map-container"
-                center={[55.746667, 37.606545]}
-                zoom={15}
-                scrollWheelZoom={true}
-            >
-                <CustomAttribution />
-                <TileLayer
-                    attribution='WayMe'
-                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <RoutingComponent startPositionLocal={startPosition} endPositionLocal={endPosition} />
-                <MarkersLayer />
-                <MapEventsHandler />
-            </MapContainer>
+            <MapCoordinatesTitle position={position}/>
+            <Flex justify="space-between">
+                <div style={{width: "25vw"}}>
+                    <Box w="25vw" h="100vh" p={4} bg="gray.50" overflowY="auto" boxShadow="md">
+                        <VStack align="start" spacing={4}>
+                            {/* Greeting */}
+                            <Text fontSize="lg" color="gray.600">
+                                👋 Привет, <b>мы тебя ждали!</b>
+                            </Text>
+
+                            {/* Search Bar */}
+                            <Input
+                                placeholder="Поиск мест..."
+                                bg="white"
+                                variant="outline"
+                                _focus={{ bg: 'white' }}
+                            />
+
+                            {/* Filters */}
+                            <Box w="100%">
+                                <Heading as="h4" size="sm" mb={2}>
+                                    Фильтры
+                                </Heading>
+                                <div>
+                                    <Switch.Root style={{paddingRight: 8}}>
+                                        <Switch.HiddenInput />
+                                        <Switch.Control />
+                                        <Switch.Label>Кафе</Switch.Label>
+                                    </Switch.Root>
+                                    <Switch.Root style={{paddingRight: 8}}>
+                                        <Switch.HiddenInput />
+                                        <Switch.Control />
+                                        <Switch.Label>Рестораны</Switch.Label>
+                                    </Switch.Root>
+                                    <Switch.Root style={{paddingRight: 8}}>
+                                        <Switch.HiddenInput />
+                                        <Switch.Control />
+                                        <Switch.Label>Быстрое питание</Switch.Label>
+                                    </Switch.Root>
+                                </div>
+                            </Box>
+
+                            {/* Gallery or Thumbnails */}
+                            <Box w="100%">
+                                <Heading as="h4" size="sm" mb={2}>
+                                    Популярное
+                                </Heading>
+                                <Image
+                                    src="https://avatars.mds.yandex.net/i?id=094ab2183726d3164c22d3f12d48fddd_l-10638774-images-thumbs&n=13"
+                                    alt="Place 1"
+                                    borderRadius="md"
+                                    mb={2}
+                                />
+                                {/* AI Chat Assistant Inside Popular Section */}
+                                <Box
+                                    w="100%"
+                                    bg="white"
+                                    borderRadius="md"
+                                    boxShadow="md"
+                                    p={3}
+                                    border="1px solid"
+                                    borderColor="gray.200"
+                                >
+                                    <Text fontSize="sm" fontWeight="medium" mb={2}>
+                                        🤖 AI-помощник
+                                    </Text>
+
+                                    {/* Chat history placeholder */}
+                                    <VStack
+                                        align="start"
+                                        spacing={2}
+                                        maxH="200px"
+                                        overflowY="auto"
+                                        bg="gray.50"
+                                        p={2}
+                                        borderRadius="md"
+                                    >
+                                        <Box bg="purple.100" px={3} py={1} rounded="md">
+                                            <Text fontSize="xs">Привет! Чем могу помочь?</Text>
+                                        </Box>
+                                    </VStack>
+
+                                    {/* Message input */}
+                                    <HStack mt={2}>
+                                        <Input placeholder="Введите сообщение..." size="sm" />
+                                        <Button size="sm" bg="purple.300">
+                                            ➤
+                                        </Button>
+                                    </HStack>
+                                </Box>
+                            </Box>
+
+                            {/* Recent Places */}
+                            <Box w="100%">
+                                <Heading as="h4" size="sm" mb={2}>
+                                    Последние просмотренные места
+                                </Heading>
+                                <Text fontSize="sm" color="gray.500">Central Park</Text>
+                                <Text fontSize="sm" color="gray.500">Louvre Museum</Text>
+                                <Text fontSize="sm" color="gray.500">Brooklyn Bridge</Text>
+                            </Box>
+                        </VStack>
+                    </Box>
+                </div>
+                <div style={{width: "75vw"}}>
+                    <MapContainer
+                        className="map-container"
+                        center={[55.746667, 37.606545]}
+                        zoom={15}
+                        scrollWheelZoom={true}
+                    >
+                        <CustomAttribution/>
+                        <TileLayer
+                            attribution='WayMe'
+                            url="http://www.google.cn/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i342009817!3m9!2sen-US!3sCN!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0&token=32965"
+                        />
+                        <RoutingComponent startPositionLocal={startPosition} endPositionLocal={endPosition}/>
+                        <MarkersLayer/>
+                        <MapEventsHandler/>
+                    </MapContainer>
+                </div>
+            </Flex>
         </>
     );
 }
