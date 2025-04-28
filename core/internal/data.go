@@ -10,6 +10,12 @@ import (
 	"strconv"
 )
 
+var TypeObjectNames = map[string]string{
+	"cafe":        "кафе",
+	"restaurants": "ресторан",
+	"fastFood":    "предприятие быстрого обслуживания",
+}
+
 type Place struct {
 	ID               string  `json:"ID"`
 	Name             string  `json:"Name"`

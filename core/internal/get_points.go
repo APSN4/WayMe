@@ -54,7 +54,7 @@ func comparePhones(a, b []Phone) bool {
 	return true
 }
 
-func GetPointsRegion(x float64, y float64, radius int64) []PlaceAPI {
+func GetPointsRegion(x float64, y float64, radius int64, filterList []string) []PlaceAPI {
 
 	var places []PlaceAPI
 
@@ -69,7 +69,26 @@ func GetPointsRegion(x float64, y float64, radius int64) []PlaceAPI {
 		t,
 		/* v = */ vector.V{x, y},
 		/* k = */ int(radius),
-		func(p *P) bool { return true }) {
+		func(p *P) bool {
+			if filterList[0] == "all" {
+				return true
+			} else if filterList[0] == "" {
+				if p.info.TypeObject != TypeObjectNames["cafe"] && p.info.TypeObject != TypeObjectNames["restaurants"] &&
+					p.info.TypeObject != TypeObjectNames["fastFood"] {
+					return true
+				} else {
+					return false
+				}
+			}
+			for _, filter := range filterList {
+				if TypeObjectNames[filter] == p.info.TypeObject {
+					return true
+				} else {
+					return false
+				}
+			}
+			return false
+		}) {
 		fmt.Println(p)
 		places = append(places, PlaceAPI{CoordinatesFloat: p.p, Info: p.info})
 	}
