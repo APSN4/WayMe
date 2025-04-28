@@ -10,16 +10,16 @@ import {
     VStack,
     Input,
     Text,
-    Checkbox,
     Heading,
     Image,
     Flex,
     Switch, HStack, Button, Link,
 } from '@chakra-ui/react';
-import { CookiesProvider, useCookies } from 'react-cookie'
+import { useCookies } from 'react-cookie'
 
 function App() {
 
+    //
     const [startPosition, setStartPosition] = useState([55.743580, 37.630657]);
     const [endPosition, setEndPosition] = useState([55.733280, 37.609791]);
     const [position, setPosition] = useState([55.746667, 37.606545])
@@ -83,8 +83,6 @@ function App() {
 
                 routingControlRef.current.on('routesfound', (event) => {
                     console.log(event)
-                    const waypoints = routingControlRef.current?.getPlan().getWaypoints();
-                    const firstPoint = waypoints?.[0]?.latLng;
                     // Собираем все промисы в массив
                     const markerPromises = event.routes[0].coordinates.map(coord =>
                         RequestGetMarkers(coord.lng, coord.lat, 1, filtersRef.current)
