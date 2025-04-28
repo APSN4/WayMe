@@ -108,3 +108,6 @@
 .DS_Store
 .idea/
 .env
+
+core/internal/storage/*
+!core/storage/.gitkeep
