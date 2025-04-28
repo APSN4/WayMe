@@ -14,8 +14,9 @@ import {
     Heading,
     Image,
     Flex,
-    Switch, HStack, Button,
+    Switch, HStack, Button, Link,
 } from '@chakra-ui/react';
+import { CookiesProvider, useCookies } from 'react-cookie'
 
 function App() {
 
@@ -25,9 +26,22 @@ function App() {
     const isFirstRender = useRef(true);
     const [markers, setMarkers] = useState([]);
 
-    const RoutingComponent = ({ startPositionLocal, endPositionLocal }: any) => {
+    const [cookies, setCookie, removeCookie] = useCookies(['last_places'])
+    const routingControlRef = useRef<L.Routing.Control | null>(null);
+
+    interface ILastPlaces {
+        places: IPlace[]
+    }
+
+    interface IPlace {
+        name: string
+        lat: number
+        lng: number
+    }
+
+    const RoutingComponent = ({ routingControlRefCopy, startPositionLocal, endPositionLocal }: any) => {
         const map = useMap();
-        const routingControlRef = useRef<L.Routing.Control | null>(null);
+        const routingControlRef = routingControlRefCopy;
 
         // Используем событие карты для добавления маршрута
         if (map) {
@@ -88,6 +102,25 @@ function App() {
                         .catch(error => {
                             console.error('Ошибка при загрузке маркеров:', error);
                         });
+                    // cookie place
+                    let newPlace: IPlace = {
+                        name: event.routes[0].name,
+                        lat: event.routes[0].waypoints[0].latLng.lat,
+                        lng: event.routes[0].waypoints[0].latLng.lng
+                    }
+                    let placesObj: ILastPlaces = cookies.last_places || { places: [] };
+                    let existPlace = placesObj.places.some(place => place.name === newPlace.name);
+                    if (!existPlace) {
+                        if (placesObj.places.length < 3) {
+                            // Если меньше 3 мест, добавляем новое в начало
+                            placesObj.places.unshift(newPlace);
+                        } else {
+                            // Если уже 3 места, удаляем последнее и добавляем новое в начало
+                            placesObj.places.pop();
+                            placesObj.places.unshift(newPlace);
+                        }
+                        setCookie('last_places', placesObj, { path: '/' });
+                    }
                 })
                 isFirstRender.current = false;
             }
@@ -273,9 +306,32 @@ function App() {
                                 <Heading as="h4" size="sm" mb={2}>
                                     Последние просмотренные места
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500">Central Park</Text>
-                                <Text fontSize="sm" color="gray.500">Louvre Museum</Text>
-                                <Text fontSize="sm" color="gray.500">Brooklyn Bridge</Text>
+                                {cookies.last_places != undefined ? (
+                                    cookies.last_places.places.map((place: IPlace, index: number) => (
+                                        <Link
+                                            key={place.name}
+                                            fontSize="sm"
+                                            color="gray.500"
+                                            display="block"
+                                            onClick={() => {
+                                                if (routingControlRef.current) {
+                                                    const currentWaypoints = routingControlRef.current?.getWaypoints()
+                                                    const currentStartPosition = currentWaypoints?.[1].latLng
+                                                    routingControlRef.current.setWaypoints([
+                                                        currentStartPosition,
+                                                        L.latLng(place.lat, place.lng)
+                                                    ]);
+                                                }
+                                            }}
+                                        >
+                                            {place.name}
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <Text fontSize="sm" color="gray.500">
+                                        No recent places found
+                                    </Text>
+                                )}
                             </Box>
                         </VStack>
                     </Box>
@@ -292,7 +348,7 @@ function App() {
                             attribution='WayMe'
                             url="http://www.google.cn/maps/vt?pb=!1m5!1m4!1i{z}!2i{x}!3i{y}!4i256!2m3!1e0!2sm!3i342009817!3m9!2sen-US!3sCN!5e18!12m1!1e47!12m3!1e37!2m1!1ssmartmaps!4e0&token=32965"
                         />
-                        <RoutingComponent startPositionLocal={startPosition} endPositionLocal={endPosition}/>
+                        <RoutingComponent routingControlRefCopy={routingControlRef} startPositionLocal={startPosition} endPositionLocal={endPosition}/>
                         <MarkersLayer/>
                         <MapEventsHandler/>
                     </MapContainer>
