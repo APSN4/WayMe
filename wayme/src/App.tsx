@@ -16,6 +16,7 @@ import {
     Switch, HStack, Button, Link,
 } from '@chakra-ui/react';
 import { useCookies } from 'react-cookie'
+import SearchPlaces from "@/components/searchEngine/searchEngine.tsx";
 
 function App() {
 
@@ -79,6 +80,9 @@ function App() {
                         L.latLng(startPositionLocal),
                         L.latLng(endPositionLocal)
                     ],
+                    router: L.Routing.osrmv1({
+                        serviceUrl: 'http://localhost:5000/route/v1'
+                    }),
                 }).addTo(map);
 
                 routingControlRef.current.on('routesfound', (event) => {
@@ -250,12 +254,13 @@ function App() {
                             </Text>
 
                             {/* Search Bar */}
-                            <Input
-                                placeholder="Поиск мест..."
-                                bg="white"
-                                variant="outline"
-                                _focus={{ bg: 'white' }}
-                            />
+                            {/*<Input*/}
+                            {/*    placeholder="Поиск мест..."*/}
+                            {/*    bg="white"*/}
+                            {/*    variant="outline"*/}
+                            {/*    _focus={{ bg: 'white' }}*/}
+                            {/*/>*/}
+                            <SearchPlaces routingControlRef={routingControlRef} />
 
                             {/* Filters */}
                             <Box w="100%">
@@ -358,7 +363,7 @@ function App() {
                                             onClick={() => {
                                                 if (routingControlRef.current) {
                                                     const currentWaypoints = routingControlRef.current?.getWaypoints()
-                                                    const currentStartPosition = currentWaypoints?.[1].latLng
+                                                    const currentStartPosition = currentWaypoints?.[0].latLng
                                                     routingControlRef.current.setWaypoints([
                                                         currentStartPosition,
                                                         L.latLng(place.lat, place.lng)
