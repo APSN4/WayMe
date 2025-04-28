@@ -39,6 +39,23 @@ function App() {
         lng: number
     }
 
+    const [filters, setFilters] = useState({
+        cafe: true,
+        restaurants: true,
+        fastFood: true,
+    });
+    const filtersRef = useRef(filters);
+
+    const handleToggle = (filterName: keyof typeof filters, isChecked: boolean) => {
+        const updatedFilters = {
+            ...filters,
+            [filterName]: isChecked,
+        };
+
+        setFilters(updatedFilters);         // перерисовываем UI
+        filtersRef.current = updatedFilters; // обновляем ref для запроса
+    };
+
     const RoutingComponent = ({ routingControlRefCopy, startPositionLocal, endPositionLocal }: any) => {
         const map = useMap();
         const routingControlRef = routingControlRefCopy;
@@ -70,7 +87,7 @@ function App() {
                     const firstPoint = waypoints?.[0]?.latLng;
                     // Собираем все промисы в массив
                     const markerPromises = event.routes[0].coordinates.map(coord =>
-                        RequestGetMarkers(coord.lng, coord.lat, 1)
+                        RequestGetMarkers(coord.lng, coord.lat, 1, filtersRef.current)
                     );
 
                     // Ждем завершения всех запросов
@@ -186,8 +203,23 @@ function App() {
         return null;
     }
 
-    async function RequestGetMarkers(x: number, y: number, r: number) {
-        return fetch(`http://localhost:8080/v1/markers?x=${x}&y=${y}&radius=${r}`)
+    async function RequestGetMarkers(x: number, y: number, r: number, filtersRef: any) {
+        const entries = Object.entries(filtersRef);
+
+        const countTrue = entries.filter(([_, v]) => v).length;
+        const totalFilters = entries.length;
+
+        let filterQuery = '';
+
+        if (countTrue === totalFilters) {
+            filterQuery = '&filter=all';
+        } else if (countTrue === 0) {
+            filterQuery = '';
+        } else {
+            filterQuery = `&filter=${entries.filter(([_, v]) => v).map(([k]) => k).join(',')}`;
+        }
+
+        return fetch(`http://localhost:8080/v1/markers?x=${x}&y=${y}&radius=${r}${filterQuery}`)
             .then((response) => response.json())
             .then((responseJson) => {
                 return responseJson;
@@ -233,17 +265,29 @@ function App() {
                                     Фильтры
                                 </Heading>
                                 <div>
-                                    <Switch.Root style={{paddingRight: 8}}>
+                                    <Switch.Root
+                                        checked={filters.cafe}
+                                        onCheckedChange={({ checked }) => handleToggle('cafe', checked)}
+                                        style={{paddingRight: 8}}
+                                    >
                                         <Switch.HiddenInput />
                                         <Switch.Control />
                                         <Switch.Label>Кафе</Switch.Label>
                                     </Switch.Root>
-                                    <Switch.Root style={{paddingRight: 8}}>
+                                    <Switch.Root
+                                        checked={filters.restaurants}
+                                        onCheckedChange={({ checked }) => handleToggle('restaurants', checked)}
+                                        style={{paddingRight: 8}}
+                                    >
                                         <Switch.HiddenInput />
                                         <Switch.Control />
                                         <Switch.Label>Рестораны</Switch.Label>
                                     </Switch.Root>
-                                    <Switch.Root style={{paddingRight: 8}}>
+                                    <Switch.Root
+                                        checked={filters.fastFood}
+                                        onCheckedChange={({ checked }) => handleToggle('fastFood', checked)}
+                                        style={{paddingRight: 8}}
+                                    >
                                         <Switch.HiddenInput />
                                         <Switch.Control />
                                         <Switch.Label>Быстрое питание</Switch.Label>
