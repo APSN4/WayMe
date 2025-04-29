@@ -19,18 +19,22 @@ var TypeObjectNames = map[string]string{
 type Place struct {
 	ID               string  `json:"ID"`
 	Name             string  `json:"Name"`
-	GlobalID         int     `json:"global_id"`
+	GlobalID         int     `gorm:"primaryKey" json:"global_id"`
 	IsNetObject      string  `json:"IsNetObject"`
 	OperatingCompany string  `json:"OperatingCompany"`
 	TypeObject       string  `json:"TypeObject"`
 	AdmArea          string  `json:"AdmArea"`
 	District         string  `json:"District"`
 	Address          string  `json:"Address"`
-	PublicPhone      []Phone `json:"PublicPhone"`
+	PublicPhone      []Phone `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:PlaceID" json:"PublicPhone"`
 	SeatsCount       int     `json:"SeatsCount"`
 	SocialPrivileges string  `json:"SocialPrivileges"`
 	Longitude        string  `json:"Longitude_WGS84"`
 	Latitude         string  `json:"Latitude_WGS84"`
+}
+
+type LLMRequest struct {
+	Text string `json:"text"`
 }
 
 type Phone struct {
