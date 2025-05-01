@@ -17,10 +17,10 @@ import {
 } from '@chakra-ui/react';
 import { useCookies } from 'react-cookie'
 import SearchPlaces from "@/components/searchEngine/searchEngine.tsx";
+import AssistantChatDialog from "@/components/AI/assistant.tsx";
 
 function App() {
 
-    //
     const [startPosition, setStartPosition] = useState([55.743580, 37.630657]);
     const [endPosition, setEndPosition] = useState([55.733280, 37.609791]);
     const [position, setPosition] = useState([55.746667, 37.606545])
@@ -29,6 +29,8 @@ function App() {
 
     const [cookies, setCookie, removeCookie] = useCookies(['last_places'])
     const routingControlRef = useRef<L.Routing.Control | null>(null);
+
+    const [isOpenAI, setIsOpenAI] = useState(false);
 
     interface ILastPlaces {
         places: IPlace[]
@@ -253,13 +255,6 @@ function App() {
                                 👋 Привет, <b>мы тебя ждали!</b>
                             </Text>
 
-                            {/* Search Bar */}
-                            {/*<Input*/}
-                            {/*    placeholder="Поиск мест..."*/}
-                            {/*    bg="white"*/}
-                            {/*    variant="outline"*/}
-                            {/*    _focus={{ bg: 'white' }}*/}
-                            {/*/>*/}
                             <SearchPlaces routingControlRef={routingControlRef} />
 
                             {/* Filters */}
@@ -310,42 +305,7 @@ function App() {
                                     mb={2}
                                 />
                                 {/* AI Chat Assistant Inside Popular Section */}
-                                <Box
-                                    w="100%"
-                                    bg="white"
-                                    borderRadius="md"
-                                    boxShadow="md"
-                                    p={3}
-                                    border="1px solid"
-                                    borderColor="gray.200"
-                                >
-                                    <Text fontSize="sm" fontWeight="medium" mb={2}>
-                                        🤖 AI-помощник
-                                    </Text>
-
-                                    {/* Chat history placeholder */}
-                                    <VStack
-                                        align="start"
-                                        spacing={2}
-                                        maxH="200px"
-                                        overflowY="auto"
-                                        bg="gray.50"
-                                        p={2}
-                                        borderRadius="md"
-                                    >
-                                        <Box bg="purple.100" px={3} py={1} rounded="md">
-                                            <Text fontSize="xs">Привет! Чем могу помочь?</Text>
-                                        </Box>
-                                    </VStack>
-
-                                    {/* Message input */}
-                                    <HStack mt={2}>
-                                        <Input placeholder="Введите сообщение..." size="sm" />
-                                        <Button size="sm" bg="purple.300">
-                                            ➤
-                                        </Button>
-                                    </HStack>
-                                </Box>
+                                <AssistantChatDialog routingControlRef={routingControlRef} />
                             </Box>
 
                             {/* Recent Places */}
