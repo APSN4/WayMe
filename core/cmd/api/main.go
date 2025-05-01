@@ -33,6 +33,7 @@ func main() {
 	v1 := r.Group("v1")
 	{
 		v1.GET("/markers", api.GetMarkers)
+		v1.POST("/generate", api.LLMPipeline)
 	}
 
 	r.Run()

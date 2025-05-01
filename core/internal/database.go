@@ -135,3 +135,20 @@ func (p *PlaceDB) ToDomainModel() Place {
 
 	return place
 }
+
+func ExecutePlaceSQL(sqlText string) (PlaceDB, error) {
+	var globalID int
+
+	err := ConDB.Raw(sqlText).Scan(&globalID).Error
+	if err != nil {
+		return PlaceDB{}, err
+	}
+	
+	var place PlaceDB
+	err = ConDB.Where("global_id = ?", globalID).First(&place).Error
+	if err != nil {
+		return PlaceDB{}, err
+	}
+
+	return place, nil
+}
