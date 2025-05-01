@@ -36,18 +36,15 @@ type Phone struct {
 	PublicPhone string `json:"PublicPhone"`
 }
 
-type OllamaResponse struct {
-	Model              string `json:"model"`
-	CreatedAt          string `json:"created_at"`
-	Response           string `json:"response"`
-	Done               bool   `json:"done"`
-	DoneReason         string `json:"done_reason"`
-	TotalDuration      int64  `json:"total_duration"`
-	LoadDuration       int64  `json:"load_duration"`
-	PromptEvalCount    int    `json:"prompt_eval_count"`
-	PromptEvalDuration int64  `json:"prompt_eval_duration"`
-	EvalCount          int    `json:"eval_count"`
-	EvalDuration       int64  `json:"eval_duration"`
+type LLMResponse struct {
+	Model    string `json:"model"`
+	Status   string `json:"status"`
+	Response string `json:"response"`
+}
+
+type LLMPipelineResponse struct {
+	Point        Place  `json:"point"`
+	ResponseText string `json:"response_text"`
 }
 
 var dataPlaces []Place

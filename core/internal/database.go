@@ -3,9 +3,11 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"gorm.io/driver/sqlite"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -33,7 +35,7 @@ type PlaceDB struct {
 type KnowledgeDB struct {
 	gorm.Model
 	ID     string `gorm:"primaryKey"`
-	Type   string
+	Number string
 	Prompt string
 }
 
@@ -44,14 +46,32 @@ type PhoneDB struct {
 }
 
 func StartDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("storage/gorm.db"), &gorm.Config{})
+	err := godotenv.Load("../.env")
 	if err != nil {
-		panic("failed to connect database")
+		log.Println(".env file not loaded:", err)
 	}
+
+	host := os.Getenv("POSTGRES_HOST")
+	port := os.Getenv("POSTGRES_PORT")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+
+	dsn := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=UTC",
+		host, port, user, password, dbname,
+	)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect to PostgreSQL: " + err.Error())
+	}
+
 	err = db.AutoMigrate(&PlaceDB{}, &KnowledgeDB{}, &PhoneDB{})
 	if err != nil {
-		panic("failed to auto migrate tables")
+		panic("failed to auto migrate tables: " + err.Error())
 	}
+
 	return db
 }
 
@@ -143,7 +163,7 @@ func ExecutePlaceSQL(sqlText string) (PlaceDB, error) {
 	if err != nil {
 		return PlaceDB{}, err
 	}
-	
+
 	var place PlaceDB
 	err = ConDB.Where("global_id = ?", globalID).First(&place).Error
 	if err != nil {
