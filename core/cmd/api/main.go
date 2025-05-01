@@ -10,6 +10,15 @@ import (
 
 func main() {
 	r := gin.Default()
+
+	db := internal.StartDB()
+	internal.ConDB = db
+
+	err := internal.JsonToDB()
+	if err != nil {
+		panic("internal.JsonToDB()")
+	}
+
 	internal.GetGlobalPlacesFile()
 
 	r.Use(cors.New(cors.Config{
