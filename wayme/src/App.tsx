@@ -8,12 +8,11 @@ import {useEffect, useRef, useState} from "react";
 import {
     Box,
     VStack,
-    Input,
     Text,
     Heading,
     Image,
     Flex,
-    Switch, HStack, Button, Link,
+    Switch, Link,
 } from '@chakra-ui/react';
 import { useCookies } from 'react-cookie'
 import SearchPlaces from "@/components/searchEngine/searchEngine.tsx";
@@ -104,6 +103,27 @@ function App() {
                     router: L.Routing.osrmv1({
                         serviceUrl: 'http://localhost:5000/route/v1'
                     }),
+                    // @ts-ignore
+                    createMarker: function(i, waypoint, n) {
+                        const startIcon = L.icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3603/3603850.png',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32]
+                        });
+
+                        const endIcon = L.icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/149/149060.png',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32]
+                        });
+
+                        const marker = L.marker(waypoint.latLng, {
+                            icon: i === 0 ? endIcon : startIcon,
+                            draggable: true
+                        });
+
+                        return marker;
+                    }
                 }).addTo(map);
 
                 routingControlRef.current.on('routesfound', (event) => {
@@ -143,10 +163,11 @@ function App() {
                             console.error('Ошибка при загрузке маркеров:', error);
                         });
                     // cookie place
+                    const destinationIndex = event.routes[0].waypoints.length - 1;
                     let newPlace: IPlace = {
                         name: event.routes[0].name,
-                        lat: event.routes[0].waypoints[0].latLng.lat,
-                        lng: event.routes[0].waypoints[0].latLng.lng
+                        lat: event.routes[0].waypoints[destinationIndex].latLng.lat,
+                        lng: event.routes[0].waypoints[destinationIndex].latLng.lng
                     }
                     let placesObj: ILastPlaces = cookies.last_places || { places: [] };
                     let existPlace = placesObj.places.some(place => place.name === newPlace.name);
@@ -181,18 +202,27 @@ function App() {
                 const leafletMarker = L.marker(marker.position)
                     .addTo(map)
                     .bindPopup(() => {
-                        // Создаем содержимое попапа из info
-                        const popupContent = document.createElement('div');
-                        if (typeof marker.info === 'object') {
-                            // Если info - объект, выводим все его свойства
-                            popupContent.innerHTML = Object.entries(marker.info)
-                                .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-                                .join('<br>');
-                        } else {
-                            // Если info - строка или другой тип
-                            popupContent.innerHTML = marker.info || 'Нет информации';
-                        }
-                        return popupContent;
+                        const { Name, Address, TypeObject, PublicPhone } = marker.info || {};
+
+                        const popupHTML = `
+                            <div style="
+                              background: white;
+                              padding: 12px;
+                              border-radius: 8px;
+                              box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                              min-width: 200px;
+                              font-family: system-ui, sans-serif;
+                            ">
+                              ${Name ? `<h3 style="margin: 0 0 6px; font-size: 16px;">${Name}</h3>` : ''}
+                              ${TypeObject ? `<div style="color: gray; font-size: 14px;"><strong>Тип</strong>: ${TypeObject}</div>` : ''}
+                              ${Address ? `<div style="color: gray; font-size: 14px;"><strong>Адрес</strong>: ${Address}</div>` : ''}
+                              ${PublicPhone[0].PublicPhone ? `<div style="color: gray; font-size: 14px;"><strong>Телефон</strong>: ${PublicPhone[0].PublicPhone}</div>` : ''}
+                            </div>
+                          `;
+
+                        const container = document.createElement('div');
+                        container.innerHTML = popupHTML;
+                        return container;
                     })
                     .setIcon(icon);
 
@@ -343,6 +373,9 @@ function App() {
                                                 if (routingControlRef.current) {
                                                     const currentWaypoints = routingControlRef.current?.getWaypoints()
                                                     const currentStartPosition = currentWaypoints?.[0].latLng
+                                                    const distance = currentStartPosition.distanceTo([place.lat, place.lng]);
+                                                    if (distance < 5) return;
+
                                                     routingControlRef.current.setWaypoints([
                                                         currentStartPosition,
                                                         L.latLng(place.lat, place.lng)
