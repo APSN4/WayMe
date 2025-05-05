@@ -106,13 +106,13 @@ function App() {
                     // @ts-ignore
                     createMarker: function(i, waypoint, n) {
                         const startIcon = L.icon({
-                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3603/3603850.png',
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/149/149060.png',
                             iconSize: [32, 32],
                             iconAnchor: [16, 32]
                         });
 
                         const endIcon = L.icon({
-                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/149/149060.png',
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3603/3603850.png',
                             iconSize: [32, 32],
                             iconAnchor: [16, 32]
                         });
