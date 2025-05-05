@@ -47,6 +47,25 @@ function App() {
         restaurants: true,
         fastFood: true,
     });
+
+    interface IIconType {
+        [key: string]: [string, [number, number]];
+    }
+
+    const [iconType] = useState<IIconType>({
+        "кафе": ['https://cdn-icons-png.flaticon.com/512/2917/2917114.png', [30, 30]],
+        "ресторан": ['https://cdn-icons-png.flaticon.com/512/2276/2276934.png', [30, 30]],
+        "столовая": ['https://cdn-icons-png.flaticon.com/512/3098/3098401.png', [30, 30]],
+        "кафетерий": ['https://cdn-icons-png.flaticon.com/512/3496/3496508.png', [30, 30]],
+        "буфет": ['https://cdn-icons-png.flaticon.com/512/531/531193.png', [30, 30]],
+        "закусочная": ['https://cdn-icons-png.flaticon.com/512/1812/1812086.png', [30, 30]],
+        "предприятие быстрого обслуживания": ['https://cdn-icons-png.flaticon.com/512/2151/2151973.png', [30, 30]],
+        "бар": ['https://cdn-icons-png.flaticon.com/512/931/931949.png', [30, 30]],
+        "ночной клуб (дискотека)": ['https://cdn-icons-png.flaticon.com/512/7615/7615010.png', [30, 30]],
+        "магазин (отдел кулинарии)": ['https://cdn-icons-png.flaticon.com/512/869/869636.png', [30, 30]],
+        "заготовочный цех": ['https://cdn-icons-png.flaticon.com/512/4125/4125849.png', [30, 30]],
+    })
+
     const filtersRef = useRef(filters);
 
     const handleToggle = (filterName: keyof typeof filters, isChecked: boolean) => {
@@ -154,11 +173,11 @@ function App() {
         const map = useMap();
 
         useEffect(() => {
-            var restaurantIcon = L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2151/2151973.png',
-                iconSize: [30, 30]
-            })
             const markerLayer = markers.map(marker => {
+                const icon = L.icon({
+                    iconUrl: iconType[marker.info.TypeObject][0],
+                    iconSize: iconType[marker.info.TypeObject][1]
+                });
                 const leafletMarker = L.marker(marker.position)
                     .addTo(map)
                     .bindPopup(() => {
@@ -175,7 +194,7 @@ function App() {
                         }
                         return popupContent;
                     })
-                    .setIcon(restaurantIcon);
+                    .setIcon(icon);
 
                 return leafletMarker;
             });
